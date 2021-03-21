@@ -21,21 +21,21 @@ spec:
       steps {
         container(name: 'helm') {
           sh '''#!/bin/sh 
-export HELM_EXPERIMENTAL_OCI=1          
-
-NAME=helm-ubuntu
-REGISTRY=registry.crazyzone.be
-VERSION=`yq read Chart.yaml -j | jq -r .version`
-FULLVERSIONNAME=$REGISTRY/$NAME:$VERSION
-FULLLATESTNAME=$REGISTRY/$NAME:latest
-
-helm chart save . "$FULLVERSIONNAME"
-helm chart save . "$FULLLATESTNAME"
-
-helm chart push "$FULLVERSIONNAME"
-helm chart push "$FULLLATESTNAME"
+/build.sh push
           '''
-        }        
+        }
+      }
+    }
+    stage('helm-upgrade') {
+      when { 
+          branch 'autoupdate'
+      }
+      steps {
+        container(name: 'helm') {
+          sh '''#!/bin/sh 
+/build.sh upgrade home
+          '''
+        }
       }
     }
   }
